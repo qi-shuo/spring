@@ -1,5 +1,6 @@
 package com.qis.edu;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -8,4 +9,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TestAutowired {
+//	@Autowired
+//	private TestConfig testConfig;
+//	public void test(){
+//		testConfig.aop();
+//		//System.out.println(""testConfig.aop());
+//	}
 }

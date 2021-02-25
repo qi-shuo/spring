@@ -31,4 +31,5 @@ rootProject.children.each {project ->
 }
 include 'spring-qis'
 include 'spring-qis'
+include 'spring-qis-mvc'
 

@@ -130,11 +130,12 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//将request中的参数转换当前handler的参数格式
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
 		}
+		//根据参数进行反射调用,调用目标方法
 		return doInvoke(args);
 	}
 
@@ -146,24 +147,29 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//获取当handler所声明的所有参数,主要包括参数名,参数类型,参数位置,所标注的注解
 		MethodParameter[] parameters = getMethodParameters();
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
 		}
 
 		Object[] args = new Object[parameters.length];
+		//遍历所有的参数
 		for (int i = 0; i < parameters.length; i++) {
 			MethodParameter parameter = parameters[i];
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			//providedArgs是调用方提供的参数,这里主要是判断这些参数中是否有当前类型,如有有,则直接使用调用方提供的参数,
+			// 对于请求处理而言默认情况下调用方提供的参数都是长度为0的数组
 			args[i] = findProvidedArgument(parameter, providedArgs);
 			if (args[i] != null) {
 				continue;
 			}
+			//能够处理当前能够当前参数的参数解析器
 			if (!this.resolvers.supportsParameter(parameter)) {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
 			try {
+				//处理完成之后就拿到了对应的参数值
 				args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
 			}
 			catch (Exception ex) {

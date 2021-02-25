@@ -14,9 +14,14 @@ public class TestConfig {
 	@Autowired
 	private TestAutowired testAutowired;
 
+	public void aop() {
+		System.out.println("打印");
+	}
+
 	public static void main(String[] args) {
 		ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("classpath:applicationConfig.xml");
 		TestConfig testConfig = (TestConfig) classPathXmlApplicationContext.getBean("testConfig");
+		testConfig.aop();
 		TestConfig testConfig1 = (TestConfig) classPathXmlApplicationContext.getBean("testConfig");
 
 		System.out.println(testConfig1);
@@ -28,7 +33,6 @@ public class TestConfig {
 	public void testConfig() {
 		ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("classpath:applicationConfig.xml");
 		TestConfig testConfig = (TestConfig) classPathXmlApplicationContext.getBean("testConfig");
-		System.out.println("-----------");
-		System.out.println(testConfig);
+		//testAutowired.test();
 	}
 }
