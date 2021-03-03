@@ -13,8 +13,22 @@ repositories {
 dependencies {
     compile(project(":spring-webmvc"))
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    //mybatis
+    // https://mvnrepository.com/artifact/org.mybatis/mybatis-spring
+    implementation group: 'org.mybatis', name: 'mybatis-spring', version: '2.0.5'
+    // https://mvnrepository.com/artifact/org.mybatis/mybatis
+    implementation group: 'org.mybatis', name: 'mybatis', version: '3.5.5'
+    //jpa
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa
+    implementation group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.4.4'
+    // https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
+    implementation group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+
+
+
 }
 
 test {

@@ -165,6 +165,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 				continue;
 			}
 			//能够处理当前能够当前参数的参数解析器
+			//是否使用了@RequestParam注解进行了标注
 			if (!this.resolvers.supportsParameter(parameter)) {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
