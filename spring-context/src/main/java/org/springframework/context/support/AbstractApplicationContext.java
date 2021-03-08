@@ -513,42 +513,50 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
+		//对象锁不允许同时初始化容器和关闭容器
 		synchronized (this.startupShutdownMonitor) {
-			// Prepare this context for refreshing.
+			// 刷新前的预处理
 			prepareRefresh();
 
-			// Tell the subclass to refresh the internal bean factory.
+			// 获取BeanFactor默认实现是DefaultListableBeanFactory,加载BeanDefinition并注册到BeanDefinitionRegistry
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// Prepare the bean factory for use in this context.
+			// BeanFactory的预备工作(BeanFactory进行一些设置,比如context的类加载器)
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// Allows post-processing of the bean factory in context subclasses.
+				// BeanFactory准备工作完成后进行后置处理工作
+				//在SpringBoot源码中添加bean的一系列后置处理器
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
+				// 实例化并调用实现了BeanFactoryPostProcessor接口的bean
+				//重要方法,实现了自动装配完成解析BeanDefinition并将BeanDefinition放到map中
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
+				// 注册BeanPostProcessor(bean的后置处理器),在创建bean的前后执行
 				registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				// 初始化MessageSource组件(做国际化功能,消息绑定,消息解析)
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
+				// 初始化事件派发器
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				// 子类重新这个方法,在容器刷新的时候可以自定义逻辑,初始化特殊的bean
 				onRefresh();
 
-				// Check for listener beans and register them.
+				// 注册应用的监听器,就是注册实现了ApplicationListener接口监听器
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				// 1:初始化剩下的非懒加载的单例bean出,
+				//2:初始化创建费懒加载方式的单例bean实例(为设置属性)
+				//	3:填充属性
+				//调用BeanPostProcessor#postProcessBeforeInitialization(后置处理),在初始化之前调用
+				//初始化方法调用(比如afterPropertiesSet方法,init-method方法)
+				//调用BeanPostProcessor#postProcessAfterInitialization(后置处理器)对bean进行后置处理
 				finishBeanFactoryInitialization(beanFactory);
 
-				// Last step: publish corresponding event.
+				// 完成Context的刷新,主要调用LifecycleProcessor的onRefresh()方法,并且发布ContextRefreshEvent
 				finishRefresh();
 			}
 

@@ -181,7 +181,7 @@ class ConfigurationClassParser {
 						"Failed to parse configuration class [" + bd.getBeanClassName() + "]", ex);
 			}
 		}
-
+		//SpringBoot自动注册的入口,会调用@Import引入的组件的调用
 		this.deferredImportSelectorHandler.process();
 	}
 
@@ -277,12 +277,14 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @ComponentScan annotations
+		//解析@ComponentScans注解来读取当前被@Component,@Service等注解标注的类
 		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
 		if (!componentScans.isEmpty() &&
 				!this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
 			for (AnnotationAttributes componentScan : componentScans) {
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
+				//this.componentScanParser.parse解析@ComponentScan注解
 				Set<BeanDefinitionHolder> scannedBeanDefinitions =
 						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
@@ -299,6 +301,8 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @Import annotations
+		//解析 @Import标注的类,来定位到bean的资源
+		//getImports(sourceClass)获取通过@Import注解要向容器中导入的类
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
 		// Process any @ImportResource annotations
@@ -314,6 +318,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process individual @Bean methods
+		//@Bean标注的资源
 		Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(sourceClass);
 		for (MethodMetadata methodMetadata : beanMethods) {
 			configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
@@ -527,7 +532,7 @@ class ConfigurationClassParser {
 	 */
 	private void collectImports(SourceClass sourceClass, Set<SourceClass> imports, Set<SourceClass> visited)
 			throws IOException {
-
+		//递归找到当前类的所有@Import标注的类,因为存在很多组合注解所以递归处理
 		if (visited.add(sourceClass)) {
 			for (SourceClass annotation : sourceClass.getAnnotations()) {
 				String annName = annotation.getMetadata().getClassName();
@@ -871,10 +876,14 @@ class ConfigurationClassParser {
 		 * @return each import with its associated configuration class
 		 */
 		public Iterable<Group.Entry> getImports() {
+			//遍历DeferredImportSelectorHolder对象集合的deferredImports
+			//deferredImports集合装了各种ImportSelector
 			for (DeferredImportSelectorHolder deferredImport : this.deferredImports) {
+				//利用AutoConfigurationGroup的process方法来处理自动配置的相关逻辑决定导入哪些配置类(自动配置全在这里了)
 				this.group.process(deferredImport.getConfigurationClass().getMetadata(),
 						deferredImport.getImportSelector());
 			}
+			//经过上面的处理后,然后在进行选择导入哪些配置类
 			return this.group.selectImports();
 		}
 	}
